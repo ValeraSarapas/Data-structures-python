@@ -67,3 +67,60 @@ def count(data, i):
     return (data[i] == -1 and 1 or count(data, data[i]) + 1)
 num, data = int(input()), tuple(int(i) for i in input().split())
 print(max(count(data, i) for i in range(num)))
+
+Типа стэк без рекурсии
+input()
+s = {}
+for i, v in enumerate(map(int, input().split())):
+    s.setdefault(v, []).append(i)
+
+sm = 0
+stack = s[-1]
+while stack:
+    child = s.get(stack[-1])
+    if child:
+        stack.append(child.pop())
+    else:
+        sm = max(sm, len(stack))
+        del stack[-1]
+
+print(sm)
+
+Одним циклом делаем список списков детей
+Вторым циклом выравниваем дерево по порядку
+
+Python 3
+n = int(input())
+parents = map(int, input().split())
+
+tree = [[] for _ in range(n+1)]
+for i, parent in enumerate(parents):
+    tree[parent].append(i)
+
+ravel_tree = [(-1, 0)]
+for i, k in ravel_tree:
+    for j in tree[i]:
+        ravel_tree.append((j, k+1))
+        
+print(ravel_tree[-1][-1])
+
+Не обязательно писать рекурсию, чтобы реализовать рекурсивное решение, ведь так?
+Спускаемся по уровням, и считаем уровни.
+
+length, parents = input(), [int(parent_str) for parent_str in input().split()]
+children = [[] for i in parents]
+children.append([])  # to locate root vertex, by default it's parent is -1.
+for i, parent in enumerate(parents):
+    children[parent].append(i)
+
+tree_depth = 0
+root = children[-1]
+while root:
+    new_roots = []
+    for vertex in root:
+        new_roots.extend(children[vertex])
+    root = new_roots
+    tree_depth += 1
+
+print(tree_depth)
+
