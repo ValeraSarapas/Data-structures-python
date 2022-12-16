@@ -57,3 +57,13 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+Python3. Вдохновившись идеями: Игоря Фукина о рекурсии от детей к родителям - здесь  и Ольги Ларькиной об использовании списка вместо словаря для сохранения глубин вершин - здесь ﻿ получил довольно компактное решение. 
+Был еще компактный вариант кода с использованием @lru_cache, но валился на 24 тесте по времени. Буду признателен, за комментарий, почему не прошел этот вариант:
+    
+from functools import lru_cache
+@lru_cache(maxsize=None)
+def count(data, i):
+    return (data[i] == -1 and 1 or count(data, data[i]) + 1)
+num, data = int(input()), tuple(int(i) for i in input().split())
+print(max(count(data, i) for i in range(num)))
