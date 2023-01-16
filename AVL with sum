@@ -1,0 +1,279 @@
+Алексей Паршин
+last year
+Использовал список для хранения дерева. И стек для хранения удаляемых вершин, чтобы их потом перезаписывать и не портить структуру. И для вычисления суммы брал сумму в корне всего дерева и начинал рекурсивно спускаться по дереву и вычитать ненужные ветки.
+
+Correct submission #465920671
+Python 3
+def find_elem(x):
+    global ROOT
+    dad = ROOT
+    if dad == None:
+        return (False, None)
+    while True:
+        if x == thee[dad][0]: return (True, dad)
+        elif x > thee[dad][0] and right_son(dad) != None: dad = right_son(dad)
+        elif x < thee[dad][0] and left_son(dad) != None: dad = left_son(dad)
+        else: return (False, dad)
+
+def seach(x):
+    find_rez = find_elem(x)[0]
+    return 'Found' if find_rez else 'Not found'
+
+def left_son(index):
+    return thee[index][1]
+
+def right_son(index):
+    return thee[index][2]
+
+def predok(index):
+    return thee[index][3]
+
+def add(x):
+    global ROOT
+    find_rez, dad = find_elem(x)
+    if not find_rez:
+        if dad == None:
+            ROOT = 0
+        if not stack_del_elem:
+            thee.append([x, None, None, dad, 0, 0])
+            if dad != None:
+                thee[dad][2 if x > thee[dad][0] else 1] = len(thee)-1
+            detect_height(len(thee) - 1)
+            balans(len(thee) - 1)
+        else:
+            elem = stack_del_elem.pop()
+            thee[elem] = [x, None, None, dad, 0, 0]
+            if dad != None:
+                thee[dad][2 if x > thee[dad][0] else 1] = elem
+            detect_height(elem)
+            balans(elem)
+
+def pred_elem(dad):
+    if left_son(dad) != None:
+        dad = left_son(dad)
+        while right_son(dad) != None:
+            dad = right_son(dad)
+    elif predok(dad) != None and dad == right_son(predok(dad)):
+        dad = predok(dad)
+    elif predok(dad) != None and dad == left_son(predok(dad)):
+        while predok(dad) != None and dad == left_son(predok(dad)):
+            dad = predok(dad)
+        if dad == ROOT:
+            return None
+        else:
+            dad = predok(dad)
+    elif dad == ROOT:
+        return None
+    return dad
+
+def next_elem(dad):
+    if right_son(dad) != None:
+        dad = right_son(dad)
+        while left_son(dad) != None:
+            dad = left_son(dad)
+    elif predok(dad) != None and dad == left_son(predok(dad)):
+        dad = predok(dad)
+    elif predok(dad) != None and dad == right_son(predok(dad)):
+        while predok(dad) != None and dad == right_son(predok(dad)):
+            dad = predok(dad)
+        if dad == ROOT:
+            return None
+        else:
+            dad = predok(dad)
+    elif dad == ROOT:
+        return None
+    return dad
+
+def rem(x):
+    global ROOT
+    find_rez, dad = find_elem(x)
+    if find_rez:
+        if dad == ROOT and thee[dad][1] == thee[dad][2] == None:
+            ROOT = None
+            thee.clear()
+            stack_del_elem.clear()
+            return
+        elif left_son(dad) == right_son(dad) == None:
+            thee[predok(dad)][2 if x > thee[predok(dad)][0] else 1] = None
+        elif left_son(dad) == None:
+            if dad == ROOT:
+                thee[right_son(dad)] = [thee[right_son(dad)][0], None, None, None, 0, thee[right_son(dad)][0]]
+                ROOT = right_son(dad)
+            else:
+                thee[right_son(dad)][3] = predok(dad)
+                thee[predok(dad)][2 if x > thee[predok(dad)][0] else 1] = right_son(dad)
+        elif right_son(dad) == None:
+            if dad == ROOT:
+                thee[left_son(dad)] = [thee[left_son(dad)][0], None, None, None, 0, thee[left_son(dad)][0]]
+                ROOT = left_son(dad)
+            else:
+                thee[left_son(dad)][3] = predok(dad)
+                thee[predok(dad)][1 if x < thee[predok(dad)][0] else 2] = left_son(dad)
+        else:
+            dad1 = pred_elem(dad)
+            thee[dad][0] = thee[dad1][0]
+            if dad1 == left_son(dad):
+                thee[dad][1] = left_son(left_son(dad))
+                if left_son(dad) != None:
+                    thee[(left_son(dad))][3] = dad
+            else:
+                thee[predok(dad1)][2] = left_son(dad1)
+                if left_son(dad1) != None:
+                    thee[left_son(dad1)][3] = predok(dad1)
+            dad = dad1
+        stack_del_elem.append(dad)
+        elem = predok(dad)
+        thee[dad] = None
+        detect_height(elem)
+        balans(elem)
+
+def detect_height(dad):
+    while dad != None:
+        if left_son(dad) != None and right_son(dad) != None:
+            thee[dad][4] = max(thee[left_son(dad)][4], thee[right_son(dad)][4]) + 1
+            thee[dad][5] = thee[left_son(dad)][5] + thee[right_son(dad)][5] + thee[dad][0]
+        elif left_son(dad) != None:
+            thee[dad][4] = thee[left_son(dad)][4] + 1
+            thee[dad][5] = thee[left_son(dad)][5] + thee[dad][0]
+        elif right_son(dad) != None:
+            thee[dad][4] = thee[right_son(dad)][4] + 1
+            thee[dad][5] = thee[right_son(dad)][5] + thee[dad][0]
+        else:
+            thee[dad][4] = 0
+            thee[dad][5] = thee[dad][0]
+        dad = predok(dad)
+
+def balans_mal_right(dad):
+    global ROOT
+    new_root = right_son(dad)
+    if left_son(right_son(dad)) != None:
+        thee[left_son(right_son(dad))][3] = dad
+    thee[dad][2] = left_son(right_son(dad))
+    thee[new_root][3] = thee[dad][3]
+    if predok(dad) != None: thee[predok(dad)][1 if thee[dad][0] < thee[predok(dad)][0] else 2] = new_root
+    else: ROOT = new_root
+    thee[new_root][1] = dad
+    thee[dad][3] = new_root
+
+def balans_mal_left(dad):
+    global ROOT
+    new_root = left_son(dad)
+    if right_son(left_son(dad)) != None:
+        thee[right_son(left_son(dad))][3] = dad
+    thee[dad][1] = right_son(left_son(dad))
+    thee[new_root][3] = thee[dad][3]
+    if predok(dad) != None: thee[predok(dad)][1 if thee[dad][0] < thee[predok(dad)][0] else 2] = new_root
+    else: ROOT = new_root
+    thee[new_root][2] = dad
+    thee[dad][3] = new_root
+
+def balans_big_right(dad):
+    global ROOT
+    new_root = left_son(right_son(dad))
+    if thee[new_root][1] != None:
+        thee[left_son(new_root)][3] = dad
+    if thee[new_root][2] != None:
+        thee[right_son(new_root)][3] = right_son(dad)
+    thee[right_son(dad)][1] = right_son(new_root)
+    thee[right_son(dad)][3] = new_root
+    thee[new_root][2] = right_son(dad)
+    thee[dad][2] = left_son(new_root)
+    thee[new_root][3] = predok(dad)
+    if predok(dad) != None: thee[predok(dad)][1 if thee[dad][0] < thee[predok(dad)][0] else 2] = new_root
+    else: ROOT = new_root
+    thee[dad][3] = new_root
+    thee[new_root][1] = dad
+
+def balans_big_left(dad):
+    global ROOT
+    new_root = right_son(left_son(dad))
+    if thee[new_root][2] != None:
+        thee[right_son(new_root)][3] = dad
+    if thee[new_root][1] != None:
+        thee[left_son(new_root)][3] = left_son(dad)
+    thee[left_son(dad)][2] = left_son(new_root)
+    thee[left_son(dad)][3] = new_root
+    thee[new_root][1] = left_son(dad)
+    thee[dad][1] = right_son(new_root)
+    thee[new_root][3] = predok(dad)
+    if predok(dad) != None:
+        thee[predok(dad)][1 if thee[dad][0] < thee[predok(dad)][0] else 2] = new_root
+    else:
+        ROOT = new_root
+    thee[dad][3] = new_root
+    thee[new_root][2] = dad
+
+def balans(dad):
+    while dad != None:
+        if thee[dad][4] > 1 and left_son(dad) == None or right_son(dad) != None and left_son(dad) != None and \
+                thee[right_son(dad)][4]-thee[left_son(dad)][4] > 1:
+            if left_son(right_son(dad)) == None or left_son(right_son(dad)) != None and right_son(right_son(dad)) != None and thee[right_son(right_son(dad))][4] >= thee[left_son(right_son(dad))][4]:
+                balans_mal_right(dad)
+                detect_height(dad)
+            else:
+                balans_big_right(dad)
+                detect_height(dad)
+                detect_height(right_son(predok(dad)))
+        if thee[dad][4] > 1 and right_son(dad) == None or left_son(dad) != None and right_son(dad) != None and \
+                thee[left_son(dad)][4]-thee[right_son(dad)][4] > 1:
+            if right_son(left_son(dad)) == None or right_son(left_son(dad)) != None and left_son(left_son(dad)) != None and thee[left_son(left_son(dad))][4] >= thee[right_son(left_son(dad))][4]:
+                balans_mal_left(dad)
+                detect_height(dad)
+            else:
+                balans_big_left(dad)
+                detect_height(dad)
+                detect_height(left_son(predok(dad)))
+        dad = predok(dad)
+
+def sum_otr(v1, v2):
+    v1, v2 = func(v1), func(v2)
+    # вычисляем сумму поддерева для элементов больше v1
+    v = ROOT
+    if v == None or v1 > v2:
+        return 0
+    x = thee[v][5]
+    while v != None:
+        if thee[v][0] == v1:
+            if left_son(v) != None:
+                x -= thee[left_son(v)][5]
+            break
+        if thee[v][0] < v1:
+            if v1 > x: return 0
+            x = x - thee[left_son(v)][5]-thee[v][0] if left_son(v) != None else x - thee[v][0]
+            v = right_son(v)
+        elif thee[v][0] > v1:
+            v = left_son(v)
+    v = ROOT
+    # вычитаем из суммы элементы больше v2
+    while v != None:
+        if thee[v][0] == v2:
+            if right_son(v) != None:
+                x -= thee[right_son(v)][5]
+            break
+        if thee[v][0] < v2:
+            v = right_son(v)
+        elif thee[v][0] > v2:
+            x = x - thee[v][0] - thee[right_son(v)][5] if right_son(v) != None else x - thee[v][0]
+            v = left_son(v)
+    return x
+
+def func(x):
+    return (x+rez_sum) % 1000000001
+
+
+thee = []
+stack_del_elem = []
+ROOT = None
+rez_sum = 0
+
+for i in range(int(input())):
+    zapros = input().split()
+    if zapros[0] == '+':
+        add(func(int(zapros[1])))
+    elif zapros[0] == '-':
+        rem(func(int(zapros[1])))
+    elif zapros[0] == '?':
+        print(seach(func(int(zapros[1]))))
+    elif zapros[0] == 's':
+        rez_sum = sum_otr(int(zapros[1]), int(zapros[2]))
+        print(rez_sum)
