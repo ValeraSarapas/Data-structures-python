@@ -1,6 +1,7 @@
 https://www.programiz.com/dsa/avl-tree
 https://habr.com/ru/post/150732/
 https://github.com/xelad0m/Algorithm.data/blob/master/5.%D0%97%D0%B0%D0%B4%D0%B0%D1%87%D0%B01.%D0%90%D0%92%D0%9B.ipynb
+https://www.cs.usfca.edu/~galles/visualization/AVLtree.html
 Алексей Паршин
 last year
 Использовал список для хранения дерева. И стек для хранения удаляемых вершин, чтобы их потом перезаписывать и не портить структуру. И для вычисления суммы брал сумму в корне всего дерева и начинал рекурсивно спускаться по дереву и вычитать ненужные ветки.
